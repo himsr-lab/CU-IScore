@@ -1,1 +1,1 @@
-# CU-Iscore
+# CU-IScore

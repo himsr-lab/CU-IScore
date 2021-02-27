@@ -40,14 +40,14 @@
  *  https://github.com/dbrant/ihc-profiler
  *
  *  CU-IScore calculates the I-Score of images or slices of image stacks by separating
- *  the corresponding grayscale histograms into four intervals with weighted categories.
+ *  the corresponding grayscale histograms into four intervals with weighted groups.
  *  Our scoring method returns higher score values for images with higher average pixel
  *  values by default – which is an applicable for the scoring of immunofluorescence data.
  *  However, the IHC Profiler scoring method for use with DAB/hematoxylin color spectra
  *  images can be activated in the code for images with separate DAB and hematoxylin
  *  channels. The grayscale histogram groups are weighted given the following table:
  *
- *  I-Score categories    |  Weight  |   Interval   |  Weight  |  IHC Profiler categories
+ *  I-Score gropus        |  Weight  |   Interval   |  Weight  |  IHC Profiler groups
  *  ----------------------|--------------------------------------------------------------
  *  Background        0   |    0     |  [min-24%]   |    3     |  High positive  3+
  *  Low intensity     1+  |    1     |  [25%-49%]   |    2     |  Positive       2+
@@ -56,7 +56,7 @@
  *  Outliers          o   |    0     |  [outside]   |    0     |  -
  *
  *  The calculation key takes into account the percentages of pixels in each of the
- *  weighted categories described by these two equations:
+ *  weighted groups described by these two equations:
  *
  *  n(pixel) = n('3+') + n('2+') + n('1+')
  *  Score    = (100 / n(pixel)) * (3 * n('3+') + 2 * ('2+') + ('1+'))
@@ -96,15 +96,15 @@ versionString = "CU-IScore v1.0 (2021-02-26)";
 
 print("\\Clear");
 requires("1.52t");  // minimum ImageJ version
-table = "CU-IScore";
-Table.create(table);  // creates and resets a table
+tableName = "CU-IScore";
+Table.create(tableName);  // creates and resets a table
 file = File.openDialog("Select the first TIFF of your dataset");
 if ( batchMode )
   setBatchMode(true);  // enter batch mode and don't display newly opened images
-processFolder(file, suffixes, table);
+processFolder(file, suffixes, tableName);
 print("\n*** Saving table to file ***");
 path = File.getDirectory(file);
-csvFile = path + File.separator + table + ".csv";
+csvFile = path + File.separator + tableName + ".csv";
 waitForFileDeletion(csvFile);
 Table.save(csvFile);
 printDateTimeStamp();
@@ -116,7 +116,7 @@ if ( batchMode )
  */
 
 // Function to score files with matching suffixes from a folder
-function processFolder(file, suffixes, table)
+function processFolder(file, suffixes, tableName)
 {
   folder = File.getParent(file);
   objects = getFileList(folder);  // files and folders
@@ -138,16 +138,16 @@ function processFolder(file, suffixes, table)
   }
 
   // calcucate the I-Scores
-  index = 0;  // table row index
-  scoreFile(file, table, index);
+  rowIndex = 0;  // table row index
+  scoreFile(file, tableName, rowIndex);
 
   for (i = 0; i < objectCount; ++i)
   {
     objectPath = folder + File.separator + objects[i];
     if(endsWithEither(objectPath, suffixes) && objectPath != file)
     {
-      index +=1;
-      scoreFile(objectPath, table, index);
+      rowIndex +=1;
+      scoreFile(objectPath, tableName, rowIndex);
     }
   }
 
@@ -175,14 +175,14 @@ function checkFile(file)
   minima = extendArray(minima, slices, 1e30);
 
   // update global max and min values per slice
-  for ( i = 0; i < slices; ++i )
+  for ( slice = 0; slice < slices; ++slice )
   {
-    setSlice(i + 1);
+    setSlice(slice + 1);
     getRawStatistics(pixels, mean, min, max);
-    if ( max > maxima[i] )
-      maxima[i] = max;
-    if ( min < minima[i] )
-      minima[i] = min;
+    if ( max > maxima[slice] )
+      maxima[slice] = max;
+    if ( min < minima[slice] )
+      minima[slice] = min;
   }
 
   // close datasets and images
@@ -191,7 +191,7 @@ function checkFile(file)
 }
 
 // Function to score a single file
-function scoreFile(file, table, index)
+function scoreFile(file, tableName, rowIndex)
 {
   // The score calculation is centered around the getHistogram function, which
   // groups pixel values into bins and returns the bin counts. Most of the code
@@ -202,10 +202,10 @@ function scoreFile(file, table, index)
   initializeRun();
   print("\n*** Scoring file ***");
   print("\t" + file);
-  avg = 0.0;  // stack score average
-  count = 0.0;  // stack score count
-  histBins = 0;  // number of bins for histogram clustering
-  sum = 0.0;  // stack score sum
+  histoBins = 0;  // number of bins for histogram clustering
+  scoreAverage = 0.0;  // stack score average
+  scoreCount = 0.0;  // stack score count
+  scoreSum = 0.0;  // stack score sum
 
   // read image file
   filePath = File.getDirectory(file);
@@ -225,110 +225,110 @@ function scoreFile(file, table, index)
   print("\tGlobal ranges: " + globalRanges );
 
   // create table entries with incremental indexing
-  Table.set("File", index, fileName, table);  // first column
+  Table.set("File", rowIndex, fileName, tableName);  // first column
   if ( classicMode )
   {
-    Table.set("IHC-Score", index, "-", table);  // second column
+    Table.set("IHC-Score", rowIndex, "-", tableName);  // second column
     print("\tScoring method: IHC-Score");
   }
   else
   {
-    Table.set("I-Score", index, "-", table);
+    Table.set("I-Score", rowIndex, "-", tableName);
     print("\tScoring method: I-Score");
   }
 
   // score slices in image stack
-  for (i = 0; i < slices; ++i)
+  for (slice = 0; slice < slices; ++slice)
   {
-    setSlice(i + 1);  // current channel
-    label = getMetadata("Label");
-    print("\n\tChannel: " + label);
+    setSlice(slice + 1);  // current channel
+    sliceLabel = getMetadata("Label");
+    print("\n\tChannel: " + sliceLabel);
 
     // check slice range
     getRawStatistics(pixels, mean, min, max);
-    if ( max > maxima[i] )
-      maxima[i] = max;
-    if ( min < minima[i] )
-      minima[i] = min;
-    range = maxima[i] - minima[i];  // pixel value range
-    print("\t\tValue range:     " + range);
+    if ( max > maxima[slice] )
+      maxima[slice] = max;
+    if ( min < minima[slice] )
+      minima[slice] = min;
+    valueRange = maxima[slice] - minima[slice];  // pixel value range
+    print("\t\tValue range:     " + valueRange);
 
     // histogram-based score calculation
-    if ( range > 0 ) // image slice with dynamic range
+    if ( valueRange > 0 ) // image slice with dynamic range
     {
-      catCounts = initializeArray(5, 0);  // pixel counts of categories
-      catLimits = initializeArray(3, 0);  // right bounds of categories
-      score = 0;  // channel score
-      npixel = 0;  // pixel count for channel score, n(pixel)
+      groupCounts = initializeArray(5, 0);  // pixel counts of groups
+      groupLimits = initializeArray(3, 0);  // right bounds of groups
+      sliceScore = 0;  // channel score
+      scorePixels = 0;  // pixel count for channel score, n(pixel)
       if ( bits == 32 )
       {
-        histBins = Math.round(range / 0.001);  // bin number needs to be greater than zero
-        if ( histBins % 2 != 0 )  // avoid binning artifacts with odd number of bins
-          histBins += 1;
-        if ( histBins < 1024 )  // ensure minimum histogram resolution
-          histBins = 1024;
+        histoBins = Math.round(valueRange / 0.001);  // bin number needs to be greater than zero
+        if ( histoBins % 2 != 0 )  // avoid binning artifacts with odd number of bins
+          histoBins += 1;
+        if ( histoBins < 1024 )  // ensure minimum histogram resolution
+          histoBins = 1024;
       }
       else if ( bits == 16 )
-        histBins = 65534;  // histBounds calculation fails with 65536
+        histoBins = 65534;  // histoBounds calculation fails with 65536
       else // 24-bit, 8-bit,
-        histBins = 256;  // must be 256
-      print("\t\tHistogram bins:  " + histBins);
-      histBounds = initializeArray(histBins, 0);  // right bounds of histogram bins
-      histPixels = initializeArray(histBins, 0);  // pixel counts of histogram bins
+        histoBins = 256;  // must be 256
+      print("\t\tHistogram bins:  " + histoBins);
+      histoBounds = initializeArray(histoBins, 0);  // right bounds of histogram bins
+      histoPixels = initializeArray(histoBins, 0);  // pixel counts of histogram bins
 
       // create image histogram
-      getHistogram(histBounds, histPixels, histBins);  // count pixel intensities by bins
+      getHistogram(histoBounds, histoPixels, histoBins);  // count pixel intensities by bins
 
       // set up interval limits
-      catLimits[0] = minima[index] + 0.25 * range;  // background (0) or high positive (3+)
-      catLimits[1] = minima[index] + 0.50 * range;  // low intensity (1+) or positive (2+)
-      catLimits[2] = minima[index] + 0.75 * range;  // medium intensity (2+) or low positive (1+)
+      groupLimits[0] = minima[slice] + 0.25 * valueRange;  // background (0) or high positive (3+)
+      groupLimits[1] = minima[slice] + 0.50 * valueRange;  // low intensity (1+) or positive (2+)
+      groupLimits[2] = minima[slice] + 0.75 * valueRange;  // medium intensity (2+) or low positive (1+)
 
       // assign pixels in histogram bins to intervals
-      catCounts = countPixels(catLimits, histBounds, histPixels, histBins);
+      groupCounts = countPixels(slice, groupLimits, histoBounds, histoPixels, histoBins);
 
       // calculate pixel count for channel score
       if ( classicMode )
-        npixel += catCounts[0];
-      npixel += catCounts[1];
-      npixel += catCounts[2];
+        scorePixels += groupCounts[0];
+      scorePixels += groupCounts[1];
+      scorePixels += groupCounts[2];
       if ( !classicMode )
-        npixel += catCounts[3];
+        scorePixels += groupCounts[3];
 
       // calculate score
-      if ( npixel > 0 )  // scoring successful
-        score = calculateScore(catCounts, npixel);
+      if ( scorePixels > 0 )  // scoring successful
+        sliceScore = calculateScore(groupCounts, scorePixels);
 
       // print values to log file
-      print("\t\tPixels (total):  " + (catCounts[0] + catCounts[1] + catCounts[2]
-                                    +  catCounts[3] + catCounts[4])
+      print("\t\tPixels (total):  " + (groupCounts[0] + groupCounts[1] + groupCounts[2]
+                                    +  groupCounts[3] + groupCounts[4])
                                     + " (" + pixels + ")");
-      reportScore(minima, maxima, catLimits, catCounts, score, classicMode);
+      reportScore(slice, minima, maxima, groupLimits, groupCounts, sliceScore, classicMode);
 
       // add channel value to table
-      Table.set(label, index, score, table);
+      Table.set(sliceLabel, rowIndex, sliceScore, tableName);
 
       // keep track of scores
-      count += 1.0;
-      sum += score;
+      scoreCount += 1.0;
+      scoreSum += sliceScore;
     }
     else
       print("\t\t(No scoring)");
   }
 
-  if ( count > 0 )  // all slices monochromatic
+  if ( scoreCount > 0 )  // all slices monochromatic
   {
     // report stack score
-    avg = sum / count;
+    scoreAverage = scoreSum / scoreCount;
     if ( classicMode )
     {
-      print("\n\tIHC-Score: " + avg + " (channel average)");
-      Table.set("IHC-Score", index, avg, table);  // overwrite existing value
+      print("\n\tIHC-Score: " + scoreAverage + " (channel average)");
+      Table.set("IHC-Score", rowIndex, scoreAverage, tableName);  // overwrite existing value
     }
     else
     {
-      print("\n\tI-Score: " + avg + " (channel average)");
-      Table.set("I-Score", index, avg, table);
+      print("\n\tI-Score: " + scoreAverage + " (channel average)");
+      Table.set("I-Score", rowIndex, scoreAverage, tableName);
     }
 
     // save and clear run
@@ -344,21 +344,21 @@ function scoreFile(file, table, index)
  */
 
 // Function to calculate the score
-function calculateScore(counts, npixel)
+function calculateScore(counts, pixels)
 {
   // Keep in mind that the scores are calculated with relative pixel counts -
   // using percentage values of the relevant pixel count totals.
   output = 0;
 
   if ( classicMode )  // IHC-score
-    output = (100.0 / npixel) * (3 * counts[0] + 2 * counts[1] + counts[2]);
+    output = (100.0 / pixels) * (3 * counts[0] + 2 * counts[1] + counts[2]);
   else  // I-Score
-    output = (100.0 / npixel) * (3 * counts[3] + 2 * counts[2] + counts[1]);
+    output = (100.0 / pixels) * (3 * counts[3] + 2 * counts[2] + counts[1]);
   return output;
 }
 
-// Function to count pixels in categories
-function countPixels(limits, bounds, pixels, bins)
+// Function to count pixels in groups
+function countPixels(slice, limits, bounds, pixels, bins)
 {
   // For the scoring, we need to concatenate the histogram group counts according
   // to the definition of the scoring method chosen. For performance reasons, we
@@ -370,7 +370,7 @@ function countPixels(limits, bounds, pixels, bins)
 
   for ( b = 0; b < bins; ++b )
   {
-    if ( bounds[b] < minima[i] || bounds[b] > maxima[i] )  // outside specified range
+    if ( bounds[b] < minima[slice] || bounds[b] > maxima[slice] )  // outside specified range
       output[4] += pixels[b];
     else  // within specified range
     {
@@ -516,24 +516,24 @@ function readImage(file)
 }
 
 // Function to report the score
-function reportScore(minima, maxima, limits, counts, score, classic)
+function reportScore(slice, minima, maxima, limits, counts, score, classic)
 {
   if ( classic )
   {
-    print("\t\tHigh positive    ["  + minima[i] + "-("  + limits[0] + ")]: " + counts[0]);
+    print("\t\tHigh positive    ["  + minima[slice] + "-("  + limits[0] + ")]: " + counts[0]);
     print("\t\tPostive          ["  + limits[0] + "-("  + limits[1] + ")]: " + counts[1]);
     print("\t\tLow positive     ["  + limits[1] + "-("  + limits[2] + ")]: " + counts[2]);
-    print("\t\tNegative         ["  + limits[2] + "-"   + maxima[i] +  "]: " + counts[3]);
-    print("\t\t-                [<" + minima[i] + ", >" + maxima[i] +  "]: " + counts[4]);
+    print("\t\tNegative         ["  + limits[2] + "-"   + maxima[slice] +  "]: " + counts[3]);
+    print("\t\t-                [<" + minima[slice] + ", >" + maxima[slice] +  "]: " + counts[4]);
     print("\t\tIHC-Score:       " + score);
   }
   else
   {
-    print("\t\tBackground       ["  + minima[i] + "-("  + limits[0] + ")]: " + counts[0]);
+    print("\t\tBackground       ["  + minima[slice] + "-("  + limits[0] + ")]: " + counts[0]);
     print("\t\tLow intensity    ["  + limits[0] + "-("  + limits[1] + ")]: " + counts[1]);
     print("\t\tNormal intensity ["  + limits[1] + "-("  + limits[2] + ")]: " + counts[2]);
-    print("\t\tHigh intensity   ["  + limits[2] + "-"   + maxima[i] +  "]: " + counts[3]);
-    print("\t\tOutliers         [<" + minima[i] + ", >" + maxima[i] +  "]: " + counts[4]);
+    print("\t\tHigh intensity   ["  + limits[2] + "-"   + maxima[slice] +  "]: " + counts[3]);
+    print("\t\tOutliers         [<" + minima[slice] + ", >" + maxima[slice] +  "]: " + counts[4]);
     print("\t\tI-Score:         " + score);
   }
 }

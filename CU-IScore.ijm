@@ -30,9 +30,9 @@
  *  The scoring of immunofluorescence images is performed analog to the approach
  *  described in the publication for the IHC Profiler:
  *
- *  Varghese F, Bukhari AB, Malhotra R, De A (2014) IHC Profiler: An Open Source Plugin
- *  for the Quantitative Evaluation and Automated Scoring of Immunohistochemistry Images
- *  of Human Tissue Samples. PLoS ONE 9(5): e96801.
+ *  Varghese F., Bukhari A.B., Malhotra R., De A. (2014) IHC Profiler: An Open Source
+ *  Plugin for the Quantitative Evaluation and Automated Scoring of Immunohistochemistry
+ *  Images of Human Tissue Samples. PLoS ONE 9(5): e96801.
  *  https://doi.org/10.1371/journal.pone.0096801
  *
  *  A reference implementation (ImageJ plugin) by Dmitry Brant can be found here:

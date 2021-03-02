@@ -62,9 +62,9 @@
  *  Score    = (100 / n(pixel)) * (3 * n('3+') + 2 * ('2+') + ('1+'))
  *
  *  When comparing scores between datasets, the same pixel value range must be applied:
- *  The intervals can be determined automatically by CU-IScore, which will perform a pre-
- *  run to determine the pixel value range on a per-channel basis. Alternatively, users
- *  can enter fixed pixel value ranges to exclude identified outliers from the scoring.
+ *  The intervals can be determined automatically by CU-IScore, which will perform a
+ *  pre-run to determine the pixel value ranges on a per-slice basis. Alternatively,
+ *  users can enter fixed pixel value ranges to exclude outliers from the scoring.
  */
 
 /*
@@ -86,9 +86,10 @@ classicMode = false;  // report IHC-Score, instead of I-Score
 
 // advanced user settings
 batchMode = true;  // speed up processing by limiting visual output
-var maxima = initializeArray(0, 0);  // maximum pixel values (global variable)
-var minima = initializeArray(0, 0);  // minimum pixel values (global variable)
-versionString = "CU-IScore v1.0 (2021-02-26)";
+fixedRanges = false;  // use user-specified ranges for outlier removal
+var maxima = newArray(0);  // maximum pixel values (global variable)
+var minima = newArray(0);  // minimum pixel values (global variable)
+versionString = "CU-IScore v1.0 (2021-03-01)";
 
 /*
  *  Start
@@ -123,7 +124,7 @@ function processFolder(file, suffixes, tableName)
   objectCount = objects.length;
 
   // check files for global extrema
-  if ( globalRanges )
+  if ( !fixedRanges && globalRanges )
   {
     initializeRun();
     checkFile(file);  // file selected by user
@@ -220,9 +221,10 @@ function scoreFile(file, tableName, rowIndex)
   slices = nSlices();
 
   // match array sizes with slice number
-  maxima = extendArray(maxima, slices, -1e30);
-  minima = extendArray(minima, slices, 1e30);
-  print("\tGlobal ranges: " + globalRanges );
+  maxima = extendArray(maxima, slices, 0.0);
+  minima = extendArray(minima, slices, 0.0);
+  print("\tFixed ranges: " + fixedRanges);
+  print("\tGlobal ranges: " + globalRanges);
 
   // create table entries with incremental indexing
   Table.set("File", rowIndex, fileName, tableName);  // first column
@@ -245,11 +247,16 @@ function scoreFile(file, tableName, rowIndex)
     print("\n\tChannel: " + sliceLabel);
 
     // check slice range
-    getRawStatistics(pixels, mean, min, max);
-    if ( max > maxima[slice] )
-      maxima[slice] = max;
-    if ( min < minima[slice] )
-      minima[slice] = min;
+    if ( fixedRanges || globalRanges )
+      getRawStatistics(pixels);  // get pixel count only
+    else
+    {
+      getRawStatistics(pixels, mean, min, max);  // extend range from slice
+      if ( max > maxima[slice] )
+        maxima[slice] = max;
+      if ( min < minima[slice] )
+        minima[slice] = min;
+    }
     valueRange = maxima[slice] - minima[slice];  // pixel value range
     print("\t\tValue range:     " + valueRange);
 
@@ -330,12 +337,9 @@ function scoreFile(file, tableName, rowIndex)
       print("\n\tI-Score: " + scoreAverage + " (channel average)");
       Table.set("I-Score", rowIndex, scoreAverage, tableName);
     }
-
-    // save and clear run
-    finalizeRun(filePath, fileName);
   }
-
-  // free memory
+  // save and clear run, free memory
+  finalizeRun(filePath, fileName);
   call("java.lang.System.gc");  // trigger JVM garbage collection
 }
 

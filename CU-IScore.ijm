@@ -47,7 +47,7 @@
  *  images can be activated in the code for images with separate DAB and hematoxylin
  *  channels. The grayscale histogram groups are weighted given the following table:
  *
- *  I-Score gropus        |  Weight  |   Interval   |  Weight  |  IHC Profiler groups
+ *  I-Score groups        |  Weight  |   Interval   |  Weight  |  IHC Profiler groups
  *  ----------------------|--------------------------------------------------------------
  *  Background        0   |    0     |  [min-24%]   |    3     |  High positive  3+
  *  Low intensity     1+  |    1     |  [25%-49%]   |    2     |  Positive       2+

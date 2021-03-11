@@ -19,6 +19,7 @@
  *  Title:        CU-IScore
  *  Summary:      ImageJ2 macro for the IHC scoring of multi-channel images
  *
+ *  DOI:          10.5281/zenodo.4599592
  *  URL:          https://github.com/christianrickert/CU-IScore/
  *
  *  Description:

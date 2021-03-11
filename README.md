@@ -1,4 +1,4 @@
-# CU-CellSeg
+# CU-IScore
 ## ImageJ2 macro for the IHC scoring of multi-channel images
 
 ### This is a test release.

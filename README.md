@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4599592.svg)](https://doi.org/10.5281/zenodo.4599592)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4599591.svg)](https://doi.org/10.5281/zenodo.4599591)
 # CU-IScore
 ## ImageJ2 macro for the IHC scoring of multi-channel images
 

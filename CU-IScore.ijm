@@ -89,7 +89,7 @@ batchMode = true;  // speed up processing by limiting visual output
 fixedRanges = false;  // use user-specified ranges for outlier removal
 var maxima = newArray(0);  // maximum pixel values (global variable)
 var minima = newArray(0);  // minimum pixel values (global variable)
-versionString = "CU-IScore v0.9 (2021-03-22)";
+versionString = "CU-IScore v0.9 (2021-04-01)";
 
 /*
  *  Start
@@ -510,9 +510,9 @@ function readImage(file)
     else  // MIBI, Vectra, Zeiss
       Ext.getMetadataValue(prefix + (k + offset), slice);
     if ( slice == 0 )  // no compatible metadata label found
-      slice = k;
+      slice = k;  // use number instead
     setMetadata("Label", slice);  // add label to slice
-    slices = Array.concat(slices, slice);
+    slices = Array.concat(slices, toString(slice));
     print("\t" + k + ".) " + slice);
   }
 

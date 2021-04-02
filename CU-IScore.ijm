@@ -516,7 +516,8 @@ function readImage(file)
     print("\t" + k + ".) " + slice);
   }
 
-  run("Maximize");  // window pane
+  setSlice(1);  // show first slice
+  run("Maximize");  // maximize window pane
   return slices;
 }
 

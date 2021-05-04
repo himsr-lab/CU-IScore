@@ -17,7 +17,7 @@ The documentation of our macros is located in the corresponding source code: You
 
 ### Example files
 The [example folder](https://github.com/christianrickert/CU-IScore/tree/main/example) contains a single [Vectra® Polaris™ image](https://github.com/christianrickert/CU-IScore/blob/main/example/Polaris%20Pt%2012%20Point%2013.tif?raw=true) (1176x1080 px).
-Running CU-IScore with the default [`Varibles`](https://github.com/christianrickert/CU-IScore/blob/35f04fcf80ba537980315bac7216f839f54cc220/CU-IScore.ijm#L77), should yield results identical to the data in the [results subfolder](https://github.com/christianrickert/CU-IScore/tree/main/example/Polaris%20Pt%2012%20Point%2013) as well as in the [summary table](https://github.com/christianrickert/CU-IScore/blob/main/example/CU-IScore.csv).
+Running CU-IScore with the default [`Variables`](https://github.com/christianrickert/CU-IScore/blob/35f04fcf80ba537980315bac7216f839f54cc220/CU-IScore.ijm#L77), should yield results identical to the data in the [results subfolder](https://github.com/christianrickert/CU-IScore/tree/main/example/Polaris%20Pt%2012%20Point%2013) as well as in the [summary table](https://github.com/christianrickert/CU-IScore/blob/main/example/CU-IScore.csv).
 
 CU-IScore produces distinct result files for every multi-channel image in the batch:
 * `*.csv` - [summary table](https://github.com/christianrickert/CU-IScore/blob/main/example/CU-IScore.csv)

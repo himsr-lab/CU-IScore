@@ -89,7 +89,7 @@ batchMode = true;  // speed up processing by limiting visual output
 fixedRanges = false;  // use user-specified ranges for outlier removal
 var maxima = newArray(0);  // maximum pixel values (global variable)
 var minima = newArray(0);  // minimum pixel values (global variable)
-versionString = "CU-IScore v0.9 (2021-04-01)";
+versionString = "CU-IScore v1.00 (2021-05-04)";
 
 /*
  *  Start

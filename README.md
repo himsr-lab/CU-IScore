@@ -11,3 +11,6 @@ The documentation of our macros is located in the corresponding source code: You
 
 ### Software requirements
 * ImageJ2 macros require a recent version of the [Fiji](https://fiji.sc/) image processing package.
+
+### Copyright notices
+The [Vectra® Polaris™ image](https://www.akoyabio.com/phenoptics/mantra-vectra-instruments/vectra-polaris/) was kindly provided by [Benjamin Bitler](https://medschool.cuanschutz.edu/ob-gyn/divisions/division-of-reproductive-sciences/our-faculty/benjamin-bitler-phd) for demonstration purposes.

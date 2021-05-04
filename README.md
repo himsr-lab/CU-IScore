@@ -1,8 +1,7 @@
+![header](https://user-images.githubusercontent.com/19319377/116955473-e20f9d00-ac4f-11eb-91fc-56399caedeb4.png)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4599591.svg)](https://doi.org/10.5281/zenodo.4599591)
 # CU-IScore
 ## ImageJ2 macro for the IHC scoring of multi-channel images
-
-### This software is still in development.
 
 ### Software documentation
 The documentation of our macros is located in the corresponding source code: You can view the source code on GitHub by following the links to the macros.

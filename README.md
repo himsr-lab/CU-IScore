@@ -20,7 +20,7 @@ CU-IScore requires a recent version of the [Fiji](https://fiji.sc/) image proces
 Any multi-channel image that can be imported with the Bio-Formats plugin can be processed by CU-IScore. However, you might have to adjust the [`suffixes`](https://github.com/christianrickert/CU-IScore/blob/44a05ef2cfef58cbf6988ee03a8dbb64a2206076/CU-IScore.ijm#L81) variable to select the file extensions for your specific instrument. In addition, if the metadata extraction and therefore the slice labeling fails, you will have to identify individual channels by slice number.
 
 ### Example files
-The [example folder](https://github.com/christianrickert/CU-IScore/tree/main/example) contains a single [Vectra® Polaris™ image](https://github.com/christianrickert/CU-IScore/blob/main/example/Polaris%20Pt%2012%20Point%2013.tif?raw=true) (1176x1080x10 px).
+The [example folder](https://github.com/christianrickert/CU-IScore/tree/main/example) contains a single [Vectra® Polaris™ image](https://github.com/christianrickert/CU-IScore/blob/main/example/Polaris%20Pt%2012%20Point%2013.tif?raw=true) (1176x1080 px).
 Running CU-IScore with the default [`Variables`](https://github.com/christianrickert/CU-IScore/blob/35f04fcf80ba537980315bac7216f839f54cc220/CU-IScore.ijm#L77), should yield results identical to the data in the [results subfolder](https://github.com/christianrickert/CU-IScore/tree/main/example/Polaris%20Pt%2012%20Point%2013) as well as in the [summary table](https://github.com/christianrickert/CU-IScore/blob/main/example/CU-IScore.csv).
 
 CU-IScore produces distinct result files for every multi-channel image in the batch:

@@ -13,7 +13,11 @@ The CU-IScore macro implements two scoring methods applicable for immunofluoresc
 The documentation of our macros is located in the corresponding source code: You can view the source code on GitHub by following the links to the macros.
 
 ### Software requirements
-* ImageJ2 macros require a recent version of the [Fiji](https://fiji.sc/) image processing package.
+CU-IScore requires a recent version of the [Fiji](https://fiji.sc/) image processing package:
+* ImageJ2 app (>= 1.53e)
+* Bio-Formats plugin (>= 6.4.0)
+
+Any multi-channel image that can be imported with the Bio-Formats plugin can be processed by CU-IScore. However, you might have to adjust the [`suffixes`](https://github.com/christianrickert/CU-IScore/blob/44a05ef2cfef58cbf6988ee03a8dbb64a2206076/CU-IScore.ijm#L81) variable to select the file extensions for your specific instrument. In addition, if the metadata extraction and therefore the slice labeling fails, you will have to identify individual channels by slice number.
 
 ### Example files
 The [example folder](https://github.com/christianrickert/CU-IScore/tree/main/example) contains a single [Vectra® Polaris™ image](https://github.com/christianrickert/CU-IScore/blob/main/example/Polaris%20Pt%2012%20Point%2013.tif?raw=true) (1176x1080x10 px).

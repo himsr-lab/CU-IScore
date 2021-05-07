@@ -1,8 +1,7 @@
 ![header](https://user-images.githubusercontent.com/19319377/116955473-e20f9d00-ac4f-11eb-91fc-56399caedeb4.png)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4599591.svg)](https://doi.org/10.5281/zenodo.4599591)
 # CU-IScore
 ## ImageJ2 macro for the IHC scoring of multi-channel images
-
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4599591.svg)](https://doi.org/10.5281/zenodo.4599591)
 ### Scoring methods
 The CU-IScore macro implements two scoring methods applicable for immunofluorescence or DAB/hematoxylin multi-channel images: In short, the novel method returns higher score values for immunofluorescence images with higher average pixel values, while the classic method returns higher score values for DAB/hematoxylin images with lower average pixel values. The classic method is based on the [IHC Profiler](https://doi.org/10.1371/journal.pone.0096801) design, but extends its applicability to multi-channel images with various image formats, bit depths, or pixel value ranges. In addition, CU-IScore creates detailed scoring reports for individual channels as well as a summary table for image batches.
 

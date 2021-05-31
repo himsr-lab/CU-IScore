@@ -36,7 +36,6 @@
  *  https://doi.org/10.1371/journal.pone.0096801
  *
  *  A reference implementation (ImageJ plugin) by Dmitry Brant can be found here:
- *
  *  https://github.com/dbrant/ihc-profiler
  *
  *  CU-IScore calculates the I-Score of images or slices of image stacks by separating
@@ -65,6 +64,11 @@
  *  The intervals can be determined automatically by CU-IScore, which will perform a
  *  pre-run to determine the pixel value ranges on a per-slice basis. Alternatively,
  *  users can enter fixed pixel value ranges to exclude outliers from the scoring.
+ *
+ *  Dependencies:
+ *
+ *  CU-IScore requires a recent version of CU-MacroLibrary to be installed:
+ *  https://github.com/christianrickert/CU-MacroLibrary/
  */
 
 /*
@@ -89,19 +93,19 @@ batchMode = true;  // speed up processing by limiting visual output
 fixedRanges = false;  // use user-specified ranges for outlier removal
 var maxima = newArray(0);  // maximum pixel values (global variable)
 var minima = newArray(0);  // minimum pixel values (global variable)
-versionString = "CU-IScore v1.00 (2021-05-04)";
+versionString = "CU-IScore v1.00 (2021-05-31)\n" +
+                 libraryVersion;
 
 /*
  *  Start
  */
 
 print("\\Clear");
-requires("1.52t");  // minimum ImageJ version
+requires("1.52a");  // minimum ImageJ version
 tableName = "CU-IScore";
 Table.create(tableName);  // creates and resets a table
 file = File.openDialog("Select the first TIFF of your dataset");
-if ( batchMode )
-  setBatchMode(true);  // enter batch mode and don't display newly opened images
+toggleBatchMode(batchMode, false);
 processFolder(file, suffixes, tableName);
 print("\n*** Saving table to file ***");
 path = File.getDirectory(file);
@@ -109,8 +113,7 @@ csvFile = path + File.separator + tableName + ".csv";
 waitForFileDeletion(csvFile);
 Table.save(csvFile);
 printDateTimeStamp();
-if ( batchMode )
-  setBatchMode(false);  // exit batch mode and dispose of all but the most recent image
+toggleBatchMode(batchMode, false);
 
 /*
  *  Loop
@@ -340,7 +343,7 @@ function scoreFile(file, tableName, rowIndex)
   }
   // save and clear run, free memory
   finalizeRun(filePath, fileName);
-  call("java.lang.System.gc");  // trigger JVM garbage collection
+  freeMemory();
 }
 
 /*
@@ -392,32 +395,7 @@ function countPixels(slice, limits, bounds, pixels, bins)
   return output;
 }
 
-// Function to test whether a string ends with suffixes from a list
-function endsWithEither(string, suffixes)
-{
-  found = false;
-
-  for (i = 0; i < suffixes.length; ++i)
-  {
-    if (endsWith(string, suffixes[i]))
-      found = true;
-  }
-
-  return found;
-}
-
-// Function extends and returns an array with default values
-function extendArray(array, size, value)
-{
-  while ( array.length < size )
-  {
-    array = Array.concat(array, value);
-  }
-
-  return array;
-}
-
-// Function to finalize a completed segmentation run
+// Function to finalize a completed scoring run
 function finalizeRun(path, name)
 {
   print("\n*** Saving result to file ***");
@@ -433,92 +411,6 @@ function finalizeRun(path, name)
   waitForFileDeletion(txtFile);
   printDateTimeStamp();
   saveLogFile(txtFile);
-}
-
-// Function initializes and returns an array with default values
-function initializeArray(counts, value)
-{
-  return Array.fill(newArray(counts), value);
-}
-
-// Function to initialize a new segmentation run
-function initializeRun()
-{
-  print("\\Clear");  // clear Log window
-  printDateTimeStamp();
-  print("ImageJ2 v" + IJ.getFullVersion);
-  print(versionString);
-  run("Close All");  // close all image windows
-}
-
-// Function to print date and time
-function printDateTimeStamp()
-{
-  getDateAndTime(year, month, dayOfWeek, dayOfMonth, hour, minute, second, msec);
-
-  print("\n[" + year + "-" + (month + 1)  + "-" + dayOfMonth + ", "
-              + hour + ":" + minute + ":" + second + "]");
-}
-
-// Function to read an image file with Bio-Formats
-function readImage(file)
-{
-  // Since we don't know all possible metadata labels for different imaging platforms,
-  // we've decided to implement a generic pattern matching system that allows us to
-  // simply add new labels to the list of known labels by extending the prefix list.
-  // As counting of those metadata labels can be done with or without leading zeros,
-  // we're using the same mechansim to try different combinations of labels with counts,
-  // until we get a valid response from the Ext.getMetadataValue function.
-  counting = "";  // metadata key count subsequential to key
-  metadataPrefixes = newArray("ChannelName #", "Information|Image|Channel|Name #",
-                              "Name #", "PageName #");
-  metadataCounting = newArray("0", "01", "1");
-  countingLength = metadataCounting.length;
-  prefixesLength = metadataPrefixes.length;
-  offset = 0;  // offset between key and slide numbering
-  prefix = "";  // metadata key prefix preceeding count
-  slice = 0;  // default "not found" return value from Ext.getMetadataValue()
-  slices = newArray(0);  // labels
-  sliceCount = 0;
-
-  run("Bio-Formats Windowless Importer", "open=" + v2p(file));
-  Ext.setId(file);  // initializes the given id (file)
-  Ext.getImageCount(sliceCount);
-
-  for (i = 0; slice == 0 && i < prefixesLength; ++i)  // try different metadata prefixes
-  {
-
-    for (j = 0; slice == 0 && j < countingLength; ++j)  // try different metadata counts
-    {
-      Ext.getMetadataValue(metadataPrefixes[i] + metadataCounting[j], slice);
-      if ( slice != 0 )  // matching prefix/count pair
-      {
-        prefix = metadataPrefixes[i];
-        counting = metadataCounting[j];
-        if ( counting == "0" )
-          offset = -1;
-      }
-    }
-
-  }
-
-  for (k = 1; k <= sliceCount; ++k)  // extract metadata for each slice
-  {
-    setSlice(k);
-    if ( counting == "01" && k <= 9 )  // Polaris
-      Ext.getMetadataValue(prefix + "0" + k, slice);
-    else  // MIBI, Vectra, Zeiss
-      Ext.getMetadataValue(prefix + (k + offset), slice);
-    if ( slice == 0 )  // no compatible metadata label found
-      slice = k;  // use number instead
-    setMetadata("Label", slice);  // add label to slice
-    slices = Array.concat(slices, toString(slice));
-    print("\t" + k + ".) " + slice);
-  }
-
-  setSlice(1);  // show first slice
-  run("Maximize");  // maximize window pane
-  return slices;
 }
 
 // Function to report the score
@@ -542,42 +434,4 @@ function reportScore(slice, minima, maxima, limits, counts, score, classic)
     print("\t\tOutliers         [<" + minima[slice] + ", >" + maxima[slice] +  "]: " + counts[4]);
     print("\t\tI-Score:         " + score);
   }
-}
-
-// Function to save the Log window content
-function saveLogFile(file)
-{
-  selectWindow("Log"); //select Log window
-  saveAs("Text", file);
-}
-
-// Function to convert a value to a parameter string
-function v2p(value)
-{
-  // This is a workaround for "undefined variable" errors when using
-  // the address operator (&) in functions' parameter assignments.
-  // By converting the numeric value to a string, we also avoid
-  // string concatenation problems during parameter parsing.
-  return "[" + toString(value) + "]";
-}
-
-// Function to wait for a certain file to be deleted
-function waitForFileDeletion(file)
-{
-  // Network drives might be slow or files might be locked, i.e. opened in
-  // another application and not accessible for deletion. We're therefore
-  // notifying the user and waiting until the lock has been removed.
-  notified = false;
-
-  while ( File.exists(file) )
-  {
-    deleted = File.delete(file);
-    if ( deleted != 1 && !notified )  // deleting failed, notify user
-    {
-      print("\tCan't delete file. Close other programs accessing the file.");
-      notified = true;
-    }
-    wait(1000);  // ms
-  }
-
 }

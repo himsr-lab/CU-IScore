@@ -1,11 +1,11 @@
 
-[2021-5-31, 17:43:29]
+[2021-7-8, 15:50:44]
 ImageJ2 v1.53j99
 CU-IScore v1.00 (2021-05-31)
-CU-MacroLibrary v1.00 (2021-05-31)
+CU-MacroLibrary v1.00 (2021-07-08)
 
 *** Scoring file ***
-	C:\Users\HIMSR staff\Desktop\Chris\2021-05-31\CU-IScore (test)\Polaris Pt 12 Point 13.tif
+	C:\Users\HIMSR staff\Desktop\Chris\2021-07-08\CU-IScore (test)\Polaris Pt 12 Point 13.tif
 Warning: Data has too many channels for Default color mode
 	1.) CK (Opal 780)
 	2.) Ki67 (Opal 690)
@@ -135,6 +135,6 @@ Warning: Data has too many channels for Default color mode
 	I-Score: 114.3078 (channel average)
 
 *** Saving result to file ***
-	Writing: C:/Users/HIMSR staff/Desktop/Chris/2021-05-31/CU-IScore (test)/\Polaris Pt 12 Point 13\CU-IScore.txt
+	Writing: C:/Users/HIMSR staff/Desktop/Chris/2021-07-08/CU-IScore (test)/\Polaris Pt 12 Point 13\CU-IScore.txt
 
-[2021-5-31, 17:43:31]
+[2021-7-8, 15:50:46]

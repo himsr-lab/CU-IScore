@@ -93,7 +93,7 @@ batchMode = true;  // speed up processing by limiting visual output
 fixedRanges = false;  // use user-specified ranges for outlier removal
 var maxima = newArray(0);  // maximum pixel values (global variable)
 var minima = newArray(0);  // minimum pixel values (global variable)
-versionString = "CU-IScore v1.00 (2021-05-31)\n" +
+versionString = "CU-IScore v1.00 (2021-08-27)\n" +
                  libraryVersion;
 
 /*
@@ -104,11 +104,11 @@ print("\\Clear");
 requires("1.52a");  // minimum ImageJ version
 tableName = "CU-IScore";
 Table.create(tableName);  // creates and resets a table
-file = File.openDialog("Select the first TIFF of your dataset");
+files = getFilesInFolder("Select the first TIFF of your dataset", suffixes);
 toggleBatchMode(batchMode, false);
-processFolder(file, suffixes, tableName);
+processFolder(files, suffixes, tableName);
 print("\n*** Saving table to file ***");
-path = File.getDirectory(file);
+path = File.getDirectory(files[0]);
 csvFile = path + File.separator + tableName + ".csv";
 waitForFileDeletion(csvFile);
 Table.save(csvFile);
@@ -120,41 +120,28 @@ toggleBatchMode(batchMode, false);
  */
 
 // Function to score files with matching suffixes from a folder
-function processFolder(file, suffixes, tableName)
+function processFolder(files, suffixes, tableName)
 {
-  folder = File.getParent(file);
-  objects = getFileList(folder);  // files and folders
-  objectCount = objects.length;
+  files_length = files.length;
 
   // check files for global extrema
   if ( !fixedRanges && globalRanges )
   {
     initializeRun();
-    checkFile(file);  // file selected by user
 
-    for (i = 0; i < objectCount; ++i)  // all other files in folder
+    for ( i = 0; i < files_length; ++i )
     {
-      objectPath = folder + File.separator + objects[i];
-      if(endsWithEither(objectPath, suffixes) && objectPath != file)
-        checkFile(objectPath);
+      checkFile(files[i]);
     }
-
   }
 
   // calcucate the I-Scores
   rowIndex = 0;  // table row index
-  scoreFile(file, tableName, rowIndex);
-
-  for (i = 0; i < objectCount; ++i)
+  for ( i = 0; i < files_length; ++i )
   {
-    objectPath = folder + File.separator + objects[i];
-    if(endsWithEither(objectPath, suffixes) && objectPath != file)
-    {
-      rowIndex +=1;
-      scoreFile(objectPath, tableName, rowIndex);
-    }
+    scoreFile(files[i], tableName, rowIndex);
+    rowIndex++;
   }
-
 }
 
 // Function to check a single file for its intervals

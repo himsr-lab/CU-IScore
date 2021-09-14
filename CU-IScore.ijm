@@ -93,7 +93,7 @@ batchMode = true;  // speed up processing by limiting visual output
 fixedRanges = false;  // use user-specified ranges for outlier removal
 var maxima = newArray(0);  // maximum pixel values (global variable)
 var minima = newArray(0);  // minimum pixel values (global variable)
-versionString = "CU-IScore v1.00 (2021-08-27)\n" +
+versionString = "CU-IScore v1.00 (2021-09-14)\n" +
                  libraryVersion;
 
 /*
@@ -127,7 +127,7 @@ function processFolder(files, suffixes, tableName)
   // check files for global extrema
   if ( !fixedRanges && globalRanges )
   {
-    initializeRun();
+    initializeRun(versionString);
 
     for ( i = 0; i < files_length; ++i )
     {

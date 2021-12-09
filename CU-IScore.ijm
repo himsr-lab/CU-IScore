@@ -93,7 +93,7 @@ batchMode = true;  // speed up processing by limiting visual output
 fixedRanges = false;  // use user-specified ranges for outlier removal
 var maxima = newArray(0);  // maximum pixel values (global variable)
 var minima = newArray(0);  // minimum pixel values (global variable)
-versionString = "CU-IScore v1.00 (2021-09-14)\n" +
+versionString = "CU-IScore v1.00 (2021-12-09)\n" +
                  libraryVersion;
 
 /*
@@ -190,7 +190,7 @@ function scoreFile(file, tableName, rowIndex)
   // with each of the channels. Monochromatic images are not scored.
 
   // prepare next run
-  initializeRun();
+  initializeRun(versionString);
   print("\n*** Scoring file ***");
   print("\t" + file);
   histoBins = 0;  // number of bins for histogram clustering

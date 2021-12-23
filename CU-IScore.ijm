@@ -91,13 +91,14 @@ classicMode = false;  // report IHC-Score, instead of I-Score
 // advanced user settings
 batchMode = true;  // speed up processing by limiting visual output
 fixedRanges = false;  // use user-specified ranges for outlier removal
+scoresFolder = "scores";  // destination folder for results files
 var maxima = newArray(0);  // maximum pixel values (global variable)
 var minima = newArray(0);  // minimum pixel values (global variable)
-versionString = "CU-IScore v1.00 (2021-12-09)\n" +
+versionString = "CU-IScore v1.00 (2021-12-23)\n" +
                  libraryVersion;
 
 /*
- *  Start
+ *  Main
  */
 
 print("\\Clear");
@@ -107,7 +108,7 @@ Table.create(tableName);  // creates and resets a table
 files = getFilesInFolder("Select the first TIFF of your dataset", suffixes);
 toggleBatchMode(batchMode, false);
 processFolder(files, suffixes, tableName);
-print("\n*** Saving table to file ***");
+print("\n*** Saving summary to file ***");
 path = File.getDirectory(files[0]);
 csvFile = path + File.separator + tableName + ".csv";
 waitForFileDeletion(csvFile);
@@ -388,9 +389,11 @@ function finalizeRun(path, name)
   print("\n*** Saving result to file ***");
 
   label = File.getNameWithoutExtension(name);
-  directory = path + File.separator + label;  // create subfolder for result files
+  directory = path + File.separator + label;  // create folder for result files
   File.makeDirectory(directory);
-  result = directory + File.separator + "CU-IScore";  // full file path without extension
+  folder = directory + File.separator + scoresFolder;  // create subfolder for result files
+  File.makeDirectory(folder);
+  result = folder + File.separator + label;  // generic full result path (without extension)
   Ext.close();  // close active Bio-Formats dataset
   close("*");  // closes all image windows
   txtFile = result + ".txt";

@@ -231,7 +231,7 @@ function scoreFile(file, tableName, rowIndex)
   }
 
   // score slices in image stack
-  for (slice = 0; slice < slices; ++slice)
+  for ( slice = 0; slice < slices; ++slice )
   {
     setSlice(slice + 1);  // current channel
     sliceLabel = getMetadata("Label");

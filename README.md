@@ -26,7 +26,7 @@ Running CU-IScore with the default [`Variables`](https://github.com/christianric
 
 CU-IScore produces distinct result files for every multi-channel image in the batch:
 * `*.csv` - [summary table](https://github.com/christianrickert/CU-IScore/blob/main/example/CU-IScore.csv)
-* `*.txt` - [log file](https://github.com/christianrickert/CU-IScore/blob/main/example/Polaris Pt 12 Point 13/scores/Polaris Pt 12 Point 13.txt)
+* `*.txt` - [log file](https://github.com/christianrickert/CU-IScore/blob/main/example/Polaris%20Pt%2012%20Point%2013/scores/Polaris%20Pt%2012%20Point%2013.txt)
 
 ### Copyright notices
 The [Vectra® Polaris™ image](https://www.akoyabio.com/phenoptics/mantra-vectra-instruments/vectra-polaris/) was kindly provided by [Benjamin Bitler](https://medschool.cuanschutz.edu/ob-gyn/divisions/division-of-reproductive-sciences/our-faculty/benjamin-bitler-phd) for demonstration purposes.

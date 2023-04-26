@@ -94,7 +94,7 @@ fixedRanges = false;  // use user-specified ranges for outlier removal
 scoresFolder = "scores";  // destination folder for results files
 var maxima = newArray(0);  // maximum pixel values (global variable)
 var minima = newArray(0);  // minimum pixel values (global variable)
-versionString = "CU-IScore v1.00 (2021-12-23)\n" +
+versionString = "CU-IScore v1.00 (2023-04-26)\n" +
                  libraryVersion;
 
 /*
@@ -102,7 +102,7 @@ versionString = "CU-IScore v1.00 (2021-12-23)\n" +
  */
 
 print("\\Clear");
-requires("1.52a");  // minimum ImageJ version
+requires("1.53a");  // minimum ImageJ version
 tableName = "CU-IScore";
 Table.create(tableName);  // creates and resets a table
 files = getFilesInFolder("Select the first TIFF of your dataset", suffixes);
@@ -210,6 +210,8 @@ function scoreFile(file, tableName, rowIndex)
   print("\tBit depth: " + bits);
   getRawStatistics(pixels);
   slices = nSlices();
+  dateTime = Property.get("DateTime");
+  print("\tDate: " + dateTime);
 
   // match array sizes with slice number
   maxima = extendArray(maxima, slices, 0.0);
@@ -219,9 +221,10 @@ function scoreFile(file, tableName, rowIndex)
 
   // create table entries with incremental indexing
   Table.set("File", rowIndex, fileName, tableName);  // first column
+  Table.set("Date", rowIndex, dateTime, tableName);  // second column
   if ( classicMode )
   {
-    Table.set("IHC-Score", rowIndex, "-", tableName);  // second column
+    Table.set("IHC-Score", rowIndex, "-", tableName);  // third column
     print("\tScoring method: IHC-Score");
   }
   else
@@ -303,7 +306,7 @@ function scoreFile(file, tableName, rowIndex)
                                     + " (" + pixels + ")");
       reportScore(slice, minima, maxima, groupLimits, groupCounts, sliceScore, classicMode);
 
-      // add channel value to table
+      // add channel value to table (consecutive columns)
       Table.set(sliceLabel, rowIndex, sliceScore, tableName);
 
       // keep track of scores

@@ -14,7 +14,7 @@ The documentation of our macros is in the corresponding source code: You can vie
 
 ### Software requirements
 CU-IScore requires a recent version of the [Fiji](https://fiji.sc/) image processing package:
-* ImageJ2 executable (>= 1.52a)
+* ImageJ2 executable (>= 1.53a)
 
 Any multi-channel image that can be imported with the Bio-Formats plugin can be processed by CU-IScore. However, you might have to adjust the [`suffixes`](https://github.com/christianrickert/CU-IScore/blob/main/CU-IScore.ijm#L85) variable to select the file extensions for your specific instrument. In addition, if the metadata extraction and therefore the slice labeling fails, you will have to identify individual channels by slice number.
 
